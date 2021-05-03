@@ -1,0 +1,25 @@
+[Unit]
+Description=Arch OJ Judge Daemon
+Requires=rabbitmq-server.service
+After=rabbitmq-server.service
+# rabbitmq-server.service or rabbitmq.service
+
+[Service]
+Type=simple
+User=nobody
+Group=nobody
+ExecStartPre=+mkdir -p /sys/fs/cgroup/memory/ARCHOJ
+ExecStartPre=+chown nobody:nobody /sys/fs/cgroup/memory/ARCHOJ
+ExecStartPre=+mkdir -p /sys/fs/cgroup/cpuacct/ARCHOJ
+ExecStartPre=+chown nobody:nobody /sys/fs/cgroup/cpuacct/ARCHOJ
+ExecStartPre=+mkdir -p /sys/fs/cgroup/pids/ARCHOJ
+ExecStartPre=+chown nobody:nobody /sys/fs/cgroup/pids/ARCHOJ
+ExecStart=/usr/local/archoj/archoj-judged/bin/venv/bin/python /usr/local/archoj/archoj-judged/bin/main.py
+ExecStopPost=+rmdir /sys/fs/cgroup/memory/ARCHOJ
+ExecStopPost=+rmdir /sys/fs/cgroup/cpuacct/ARCHOJ
+ExecStopPost=+rmdir /sys/fs/cgroup/pids/ARCHOJ
+TimeoutSec=0
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target

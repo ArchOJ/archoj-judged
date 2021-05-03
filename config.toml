@@ -1,0 +1,11 @@
+name = "judged-1"
+max_concurrency = 4  # Depends on the number of available CPU cores
+problems_base = "/var/lib/archoj/problems"
+sandbox = "/usr/local/archoj/bin/nsjail"
+
+[rabbitmq]
+login = "guest"
+password = "guest"
+host = "localhost"
+port = "5672"
+virtual_host = "/"
