@@ -55,12 +55,14 @@ class JudgeProgress(DTO):
     verdict: Verdict
     message: Optional[str]  # shown to students
     log: Optional[str]  # not shown to students
-    details: Optional[JudgeStepDetails]
+    details: Optional[JudgeStepDetails]  # if None, sth goes wrong in this step
 
 
 class JudgeResult(DTO):  # Final result
     timestamp: datetime = Field(default_factory=datetime.now)
+    submission_id: str
+    pipeline: str
     score: float
     count: bool
-    status: JudgeStatus = Field(default=JudgeStatus.OK)
+    status: JudgeStatus
     message: str

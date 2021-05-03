@@ -142,8 +142,8 @@ class Worker:
     async def _on_judge_request(self, request: aio_pika.IncomingMessage, *, pipeline: AbstractPipeline):
         # TODO: acquire semaphore for multi-core tasks. Currently each task are only allowed to use one core
         async with request.process(requeue=True, reject_on_redelivered=True, ignore_processed=True):
+            judge_request = JudgeRequest.parse_raw(request.body)
             try:
-                judge_request = JudgeRequest.parse_raw(request.body)
                 with self._sandbox.prepare_workspaces(pipeline.workspaces) as workspaces_lookup:
                     source_dir = Template(pipeline.source_dir).substitute(workspaces_lookup)
                     try:
@@ -151,6 +151,7 @@ class Worker:
                     except ValueError as e:
                         LOGGER.warning('Bad submission: %s', judge_request)
                         await self._send_result(JudgeResult(
+                            submission_id=judge_request.submission_id, pipeline=pipeline.name,
                             score=0, count=True, status=JudgeStatus.BAD_SUBMISSION, message=str(e)))
                         request.reject(requeue=False)
                         return
@@ -186,12 +187,15 @@ class Worker:
                             details=sandbox_result.details
                         ))
                     summary = pipeline.summarize(verdicts)
-                    await self._send_result(summary)
+                    await self._send_result(JudgeResult(
+                        submission_id=judge_request.submission_id, pipeline=pipeline.name,
+                        score=summary.score, count=summary.count, status=JudgeStatus.OK, message=summary.message))
                 LOGGER.debug('Submission done: %s', judge_request.submission_id)
             except Exception as e:
                 LOGGER.exception('Unknown error')
                 if request.redelivered:
                     await self._send_result(JudgeResult(
+                        submission_id=judge_request.submission_id, pipeline=pipeline.name,
                         score=0, count=False, status=JudgeStatus.SERVER_ERROR, message='Server-side error'))
                 raise e
 

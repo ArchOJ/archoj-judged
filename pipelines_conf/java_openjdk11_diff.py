@@ -4,8 +4,8 @@ from typing import Dict, Mapping, Optional, Iterable
 import toml
 from pydantic import BaseModel, ByteSize, ValidationError
 
-from dto import JudgeResult, Verdict
-from pipeline import AbstractPipeline, Workspace, Bind, Step
+from dto import Verdict
+from pipeline import AbstractPipeline, Workspace, Bind, Step, Summary
 from pathlib import Path
 
 
@@ -96,9 +96,9 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
                 time_limit=1.0,
             )
 
-    def summarize(self, verdicts: Mapping[str, Verdict]) -> JudgeResult:
+    def summarize(self, verdicts: Mapping[str, Verdict]) -> Summary:
         if verdicts['compile'] == Verdict.ERROR:
-            return JudgeResult(score=0.0, count=False, message='Compile Error')
+            return Summary(score=0.0, count=False, message='Compile Error')
         run_verdicts = [verdicts for step_name, verdict in verdicts.items() if step_name.startswith('run-')]
         diff_verdicts = [verdict for step_name, verdict in verdicts.items() if step_name.startswith('diff-')]
         score = diff_verdicts.count(Verdict.ACCEPTED) / len(diff_verdicts) * 100.0
@@ -116,4 +116,4 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             message = 'Runtime error'
         else:
             message = 'Error'
-        return JudgeResult(score=score, count=True, message=message)
+        return Summary(score=score, count=True, message=message)

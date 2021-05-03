@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional
 
-from dto import JudgeResult, Verdict
+from dto import Verdict
 
 
 @dataclass(frozen=True)
@@ -38,6 +38,13 @@ class Step:
     envs: Dict[str, str] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class Summary:
+    score: float
+    count: bool
+    message: str
+
+
 class AbstractPipeline(ABC):
     def __init__(self, *, name: str, workspaces: List[Workspace], source_dir: str):
         self.name = name
@@ -49,6 +56,6 @@ class AbstractPipeline(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def summarize(self, verdicts: Mapping[str, Verdict]) -> JudgeResult:
+    def summarize(self, verdicts: Mapping[str, Verdict]) -> Summary:
         """Note: if summarization takes a long time, use a new step for computation instead"""
         raise NotImplementedError

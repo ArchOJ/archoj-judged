@@ -1,10 +1,11 @@
 import asyncio
+from dataclasses import dataclass
 from datetime import timedelta
 import logging
 from math import ceil
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List, Optional
 
 from pydantic import ByteSize
 
@@ -16,7 +17,8 @@ from pipeline import Step, Workspace
 LOGGER = logging.getLogger(__name__)
 
 
-class SandboxResult(NamedTuple):
+@dataclass(frozen=True)
+class SandboxResult:
     verdict: Verdict
     details: Optional[JudgeStepDetails]
     log: str
