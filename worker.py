@@ -91,7 +91,7 @@ class Worker:
         # Queues
         progress_queue: aio_pika.Queue = await self._send_channel.declare_queue(
             name='archoj.queue.judge.progress',
-            durable=False
+            durable=True
         )
         result_queue: aio_pika.Queue = await self._send_channel.declare_queue(
             name='archoj.queue.judge.result',
