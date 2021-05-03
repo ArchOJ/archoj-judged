@@ -10,6 +10,8 @@ class DTO(BaseModel):
     class Config:
         allow_mutation = False
         extra = Extra.forbid  # FIXME: should allow extra fields for forward compatibility
+        json_encoders = {datetime: lambda v: v.timestamp()}
+        json_decoders = {datetime: lambda v: datetime.fromtimestamp(v)}
 
 
 class FileEntry(DTO):
@@ -25,16 +27,16 @@ class JudgeRequest(DTO):
 
 
 class Verdict(Enum):
-    ACCEPTED = 'ac'
-    ERROR = 'err'
-    TIME_LIMIT_EXCEEDED = 'tle'
-    MEMORY_LIMIT_EXCEEDED = 'mle'
+    ACCEPTED = 'AC'
+    ERROR = 'ERR'
+    TIME_LIMIT_EXCEEDED = 'TLE'
+    MEMORY_LIMIT_EXCEEDED = 'MLE'
 
 
 class JudgeStatus(Enum):
-    OK = 'ok'
-    BAD_SUBMISSION = 'bad'
-    SERVER_ERROR = 'se'
+    OK = 'OK'
+    BAD_SUBMISSION = 'BAD'
+    SERVER_ERROR = 'SE'
 
 
 class JudgeStepDetails(DTO):
