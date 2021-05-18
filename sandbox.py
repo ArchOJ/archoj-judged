@@ -116,11 +116,11 @@ class Sandbox:
             time_limit = timedelta(seconds=step.time_limit)
             if runtime_detail.memory > step.memory_limit:
                 verdict = Verdict.MEMORY_LIMIT_EXCEEDED
-            elif runtime_detail.cpu_time > time_limit or (
-                runtime_detail.cpu_time <= time_limit and runtime_detail.wall_time > time_limit + timedelta(seconds=1)
+            elif runtime_detail.cpuTime > time_limit or (
+                    runtime_detail.cpuTime <= time_limit and runtime_detail.wallTime > time_limit + timedelta(seconds=1)
             ):
                 verdict = Verdict.TIME_LIMIT_EXCEEDED
-            elif runtime_detail.exit_code != 0 or runtime_detail.exit_signal != 0:
+            elif runtime_detail.exitCode != 0 or runtime_detail.exitSignal != 0:
                 verdict = Verdict.ERROR
             else:
                 verdict = Verdict.ACCEPTED
@@ -137,11 +137,11 @@ class Sandbox:
                 pid_ignored, key, value = line.split()
                 collected[key] = value
             return JudgeStepDetails(
-                wall_time=timedelta(milliseconds=float(collected['alive_time_ms'])),
-                cpu_time=timedelta(milliseconds=float(collected['cpu_time_ms'])),
+                wallTime=timedelta(milliseconds=float(collected['alive_time_ms'])),
+                cpuTime=timedelta(milliseconds=float(collected['cpu_time_ms'])),
                 memory=ByteSize(collected['mem_usage_bytes']),
-                exit_code=int(collected['exit_code']),
-                exit_signal=int(collected['exit_signal'])
+                exitCode=int(collected['exit_code']),
+                exitSignal=int(collected['exit_signal'])
             )
         except Exception as e:
             LOGGER.exception('fail to parse: %s', report)

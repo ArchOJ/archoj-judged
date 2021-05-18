@@ -41,7 +41,7 @@ class Step:
 @dataclass(frozen=True)
 class Summary:
     score: float
-    count: bool
+    ignored: bool
     message: str
 
 

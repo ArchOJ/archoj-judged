@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from pathlib import Path
 from typing import List, Optional
 
 from pydantic import BaseModel, ByteSize, Extra, Field
@@ -9,19 +8,23 @@ from pydantic import BaseModel, ByteSize, Extra, Field
 class DTO(BaseModel):
     class Config:
         allow_mutation = False
-        extra = Extra.forbid  # FIXME: should allow extra fields for forward compatibility
+        # FIXME:
+        #  During development, forbidding extra fields makes it easier to discover programming errors.
+        #  However, for forward compatibility, extra fields should be allowed in production so that we can upgrade
+        #  message producers, which may introduce new fields, without shutting down running judge daemons.
+        extra = Extra.forbid
         json_encoders = {datetime: lambda v: v.timestamp()}
         json_decoders = {datetime: lambda v: datetime.fromtimestamp(v)}
 
 
 class FileEntry(DTO):
-    path: Path
+    path: str
     content: str
 
 
 class JudgeRequest(DTO):
-    problem_id: int
-    submission_id: str
+    problemId: int
+    submissionId: str
     files: List[FileEntry]
     # TODO: extra data, e.g. self-test input, self-test JUnit
 
@@ -40,17 +43,16 @@ class JudgeStatus(Enum):
 
 
 class JudgeStepDetails(DTO):
-    wall_time: timedelta
-    cpu_time: timedelta
+    wallTime: timedelta
+    cpuTime: timedelta
     memory: ByteSize
-    exit_code: int
-    exit_signal: int
+    exitCode: int
+    exitSignal: int
 
 
 class JudgeProgress(DTO):
     timestamp: datetime = Field(default_factory=datetime.now)
-    submission_id: str
-    pipeline: str
+    submissionId: str
     step: str
     verdict: Verdict
     message: Optional[str]  # shown to students
@@ -60,9 +62,8 @@ class JudgeProgress(DTO):
 
 class JudgeResult(DTO):  # Final result
     timestamp: datetime = Field(default_factory=datetime.now)
-    submission_id: str
-    pipeline: str
+    submissionId: str
     score: float
-    count: bool
+    ignored: bool
     status: JudgeStatus
     message: str

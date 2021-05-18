@@ -88,7 +88,7 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
                 ],
                 cwd='/',
                 exec='/usr/bin/diff',
-                args=['-qZ', f'/diff/ans', f'/diff/key'],
+                args=['-qZ', '/diff/ans', '/diff/key'],
                 stdin='/dev/null',
                 stdout=f'{workspaces["judge"]}/diff-{case}.out',
                 stderr=f'{workspaces["judge"]}/diff-{case}.err',
@@ -98,7 +98,7 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
 
     def summarize(self, verdicts: Mapping[str, Verdict]) -> Summary:
         if verdicts['compile'] == Verdict.ERROR:
-            return Summary(score=0.0, count=False, message='Compile Error')
+            return Summary(score=0.0, ignored=True, message='Compile Error')
         run_verdicts = [verdicts for step_name, verdict in verdicts.items() if step_name.startswith('run-')]
         diff_verdicts = [verdict for step_name, verdict in verdicts.items() if step_name.startswith('diff-')]
         score = diff_verdicts.count(Verdict.ACCEPTED) / len(diff_verdicts) * 100.0
@@ -116,4 +116,4 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             message = 'Runtime error'
         else:
             message = 'Error'
-        return Summary(score=score, count=True, message=message)
+        return Summary(score=score, ignored=False, message=message)

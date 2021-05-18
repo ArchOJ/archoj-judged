@@ -151,13 +151,13 @@ class Worker:
                     except ValueError as e:
                         LOGGER.warning('Bad submission: %s', judge_request)
                         await self._send_result(JudgeResult(
-                            submission_id=judge_request.submission_id, pipeline=pipeline.name,
-                            score=0, count=True, status=JudgeStatus.BAD_SUBMISSION, message=str(e)))
+                            submissionId=judge_request.submissionId, score=0, ignored=False,
+                            status=JudgeStatus.BAD_SUBMISSION, message=str(e)))
                         request.reject(requeue=False)
                         return
                     successful_steps = set()
                     verdicts = {}
-                    for step in pipeline.define_steps(self._conf.problems_base / str(judge_request.problem_id),
+                    for step in pipeline.define_steps(self._conf.problems_base / str(judge_request.problemId),
                                                       workspaces_lookup):
                         if not set(step.prerequisites).issubset(successful_steps):  # Check prerequisites
                             LOGGER.info('Step skipped: %s, unsatisfied prerequisites: %r',
@@ -178,8 +178,7 @@ class Worker:
                         LOGGER.info('Step result: step=%s, verdict=%s', step.name, sandbox_result.verdict)
                         LOGGER.debug('Sandbox log: %s', sandbox_result.log)
                         await self._send_progress(JudgeProgress(
-                            submission_id=judge_request.submission_id,
-                            pipeline=pipeline.name,
+                            submissionId=judge_request.submissionId,
                             step=step.name,
                             verdict=sandbox_result.verdict,
                             message=message,
@@ -188,15 +187,15 @@ class Worker:
                         ))
                     summary = pipeline.summarize(verdicts)
                     await self._send_result(JudgeResult(
-                        submission_id=judge_request.submission_id, pipeline=pipeline.name,
-                        score=summary.score, count=summary.count, status=JudgeStatus.OK, message=summary.message))
-                LOGGER.debug('Submission done: %s', judge_request.submission_id)
+                        submissionId=judge_request.submissionId, score=summary.score, ignored=summary.ignored,
+                        status=JudgeStatus.OK, message=summary.message))
+                LOGGER.debug('Submission done: %s', judge_request.submissionId)
             except Exception as e:
                 LOGGER.exception('Unknown error')
                 if request.redelivered:
                     await self._send_result(JudgeResult(
-                        submission_id=judge_request.submission_id, pipeline=pipeline.name,
-                        score=0, count=False, status=JudgeStatus.SERVER_ERROR, message='Server-side error'))
+                        submissionId=judge_request.submissionId, score=0, ignored=True,
+                        status=JudgeStatus.SERVER_ERROR, message='Server-side error'))
                 raise e
 
     async def _send_progress(self, progress: JudgeProgress):
