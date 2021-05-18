@@ -24,15 +24,20 @@ def write_files(base_dir: Union[Path, str], files: Iterable[FileEntry]):
     base_dir = Path(base_dir).resolve()
     existing_dirs = set()
     for file in files:
+        if not file.path:  # if empty
+            raise ValueError(f'Empty path')
         dest_path = base_dir.joinpath(file.path).resolve()
         if not dest_path.is_relative_to(base_dir):
             raise ValueError(f'Bad path: {file.path}')
         parent_dir = dest_path.parent
-        if parent_dir not in existing_dirs:
-            parent_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
-            existing_dirs.add(parent_dir)
-            LOGGER.debug('mkdir -p %s', parent_dir)
-        dest_path.write_text(file.content)
+        try:
+            if parent_dir not in existing_dirs:
+                parent_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+                existing_dirs.add(parent_dir)
+                LOGGER.debug('mkdir -p %s', parent_dir)
+            dest_path.write_text(file.content)
+        except OSError as e:  # e.g., file path too long, illegal characters in path
+            raise ValueError(f'cannot create file: {file.path}') from e
         LOGGER.debug('Created file: %s', dest_path)
 
 
