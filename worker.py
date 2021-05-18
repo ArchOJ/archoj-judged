@@ -71,7 +71,7 @@ class Worker:
 
     async def work(self):
         # Use separate connection for sender and receiver so that TCP back-pressure
-        # on the sender side doesn't affects the receiver
+        # on the sender side doesn't affect the receiver
         self._recv_connection, self._send_connection = await asyncio.gather(
             self._connect(),
             self._connect()
@@ -145,7 +145,7 @@ class Worker:
         LOGGER.info('Started pipeline: %s', pipeline.name)
 
     async def _on_judge_request(self, request: aio_pika.IncomingMessage, *, pipeline: AbstractPipeline):
-        # TODO: acquire semaphore for multi-core tasks. Currently each task are only allowed to use one core
+        # TODO: acquire semaphore for multi-core tasks. Currently each task is only allowed to use one core
         async with request.process(requeue=True, reject_on_redelivered=True, ignore_processed=True):
             judge_request = JudgeRequest.parse_raw(request.body)
             try:
