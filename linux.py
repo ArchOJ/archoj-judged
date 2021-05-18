@@ -68,8 +68,8 @@ def unshare(flags: int):
 
 def want_to_mount_like_root():
     uid, gid = os.geteuid(), os.getegid()
-    unshare(CLONE_NEWUSER | CLONE_NEWNS)
     assert uid != 0 and gid != 0  # already have root privileges
+    unshare(CLONE_NEWUSER | CLONE_NEWNS)
     Path('/proc/self/uid_map').write_text(f'0 {uid} 1')
     Path('/proc/self/setgroups').write_text('deny')
     Path('/proc/self/gid_map').write_text(f'0 {gid} 1')
