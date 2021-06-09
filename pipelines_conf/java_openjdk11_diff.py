@@ -97,6 +97,8 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             )
 
     def summarize(self, verdicts: Mapping[str, Verdict]) -> Summary:
+        if any(verdict == Verdict.INTERNAL_ERROR for verdict in verdicts):
+            return Summary(score=0.0, ignored=True, message='Internal Error')
         if verdicts['compile'] == Verdict.ERROR:
             return Summary(score=0.0, ignored=True, message='Compile Error')
         run_verdicts = [verdicts for step_name, verdict in verdicts.items() if step_name.startswith('run-')]

@@ -34,12 +34,13 @@ class Verdict(Enum):
     ERROR = 'ERR'
     TIME_LIMIT_EXCEEDED = 'TLE'
     MEMORY_LIMIT_EXCEEDED = 'MLE'
+    INTERNAL_ERROR = 'IE'
 
 
 class JudgeStatus(Enum):
     OK = 'OK'
     BAD_SUBMISSION = 'BAD'
-    SERVER_ERROR = 'SE'
+    INTERNAL_ERROR = 'IE'
 
 
 class JudgeStepDetails(DTO):

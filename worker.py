@@ -200,7 +200,7 @@ class Worker:
                 if request.redelivered:
                     await self._send_result(JudgeResult(
                         submissionId=judge_request.submissionId, score=0, ignored=True,
-                        status=JudgeStatus.SERVER_ERROR, message='Server-side error'))
+                        status=JudgeStatus.INTERNAL_ERROR, message='Internal error'))
                 raise e
 
     async def _send_progress(self, progress: JudgeProgress):

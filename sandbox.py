@@ -125,7 +125,7 @@ class Sandbox:
             else:
                 verdict = Verdict.ACCEPTED
         except ValueError:
-            verdict = Verdict.ERROR
+            verdict = Verdict.INTERNAL_ERROR
             runtime_detail = None
         return SandboxResult(verdict, runtime_detail, sandbox_log.decode())
 
