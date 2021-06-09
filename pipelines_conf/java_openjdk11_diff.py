@@ -37,7 +37,7 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             with problem_dir.joinpath('config.toml').open() as f:
                 problem_conf = ProblemConfig.parse_obj(toml.load(f)[self.name])
         except (FileNotFoundError, KeyError, ValidationError):
-            LOGGER.exception('Problem configuration error, ignoring problem configuration')
+            LOGGER.info('Problem configuration error, ignoring problem configuration')
             problem_conf = ProblemConfig()
 
         yield Step(
