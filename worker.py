@@ -3,6 +3,7 @@ from functools import partial
 import logging
 from pathlib import Path
 from string import Template
+import sys
 from typing import Iterable, List, Optional, Union
 
 import aio_pika
@@ -11,6 +12,18 @@ from config import Config
 from dto import JudgeRequest, FileEntry, JudgeProgress, JudgeResult, JudgeStatus, Verdict
 from pipeline import AbstractPipeline
 from sandbox import Sandbox
+
+
+# Monkey patching
+if sys.version_info[:2] < (3, 9):
+    def is_relative_to(self, *other):
+        """Return True if the path is relative to another path or False."""
+        try:
+            self.relative_to(*other)
+            return True
+        except ValueError:
+            return False
+    Path.is_relative_to = is_relative_to
 
 
 EXCHANGE_DEAD_LETTER = 'archoj.exchange.dead'
