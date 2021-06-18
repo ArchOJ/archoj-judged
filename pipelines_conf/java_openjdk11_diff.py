@@ -50,7 +50,7 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             ],
             cwd='/build/src',
             exec='/usr/local/openjdk-11/bin/javac',
-            args=['-J-XX:MaxHeapSize=248M', '-J-XX:ActiveProcessorCount=1', '-d', '/build/bin', 'Main.java'],
+            args=['-encoding', 'utf8', '-J-XX:MaxHeapSize=248M', '-J-XX:ActiveProcessorCount=1', '-d', '/build/bin', 'Main.java'],
             stdin='/dev/null',
             stdout='/dev/null',
             stderr=f'{workspaces["judge"]}/compile.err',
@@ -97,25 +97,25 @@ class JavaOpenJDK11DiffPipeline(AbstractPipeline):
             )
 
     def summarize(self, verdicts: Mapping[str, Verdict]) -> Summary:
-        if any(verdict == Verdict.INTERNAL_ERROR for verdict in verdicts):
+        if any(verdict == Verdict.INTERNAL_ERROR for verdict in verdicts.values()):
             return Summary(score=0.0, ignored=True, message='Internal Error')
         if verdicts['compile'] == Verdict.ERROR:
             return Summary(score=0.0, ignored=True, message='Compile Error')
-        run_verdicts = [verdicts for step_name, verdict in verdicts.items() if step_name.startswith('run-')]
+        run_verdicts = [verdict for step_name, verdict in verdicts.items() if step_name.startswith('run-')]
         diff_verdicts = [verdict for step_name, verdict in verdicts.items() if step_name.startswith('diff-')]
         score = diff_verdicts.count(Verdict.ACCEPTED) / len(diff_verdicts) * 100.0
         if score == 100.0:
             message = 'Accepted'
         elif score > 0:
-            message = 'Partial points'
+            message = 'Partial Points'
         elif all(verdict == Verdict.ERROR for verdict in diff_verdicts):
             message = 'Wrong Answer'
         elif all(verdict == Verdict.TIME_LIMIT_EXCEEDED for verdict in run_verdicts):
-            message = 'Time limit exceeded'
+            message = 'Time Limit Exceeded'
         elif all(verdict == Verdict.MEMORY_LIMIT_EXCEEDED for verdict in run_verdicts):
-            message = 'Memory limit exceeded'
+            message = 'Memory Limit Exceeded'
         elif all(verdict == Verdict.ERROR for verdict in run_verdicts):
-            message = 'Runtime error'
+            message = 'Runtime Error'
         else:
             message = 'Error'
         return Summary(score=score, ignored=False, message=message)
