@@ -99,6 +99,7 @@ class Sandbox:
             f'--cgroup_pids_max={step.pids_limit}',
             '--cgroup_cpu_ms_per_sec=1000',  # limit to single core (Hint: use 2000 to allow using dual cores)
             '--max_cpus=1',  # also set cpu affinity
+            '--nice_level=0',
             f'--time_limit={ceil(step.time_limit) + 1}',
             f'--chroot={step.rootfs}',
             f'--cwd={step.cwd}',
